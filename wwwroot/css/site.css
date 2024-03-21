@@ -1,0 +1,39 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  background-color: lavenderblush;
+}
+
+.navbar{
+    background-color: lavender;
+    font-size: 20px;
+    border: 1px;
+    border-color: black;
+}
+
+.display-4{
+    font-family: cursive;
+    padding-top: 20px;
+    font-size: 60px;
+}
+.homebody{
+    font-size: 25px;
+    width: 400px;
+    position: absolute;
+    top: 30%;
+    left: 36%;
+}
