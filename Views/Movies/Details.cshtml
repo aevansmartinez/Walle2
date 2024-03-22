@@ -98,19 +98,46 @@
     </tbody>
 </table>
 
+<h1>Sentiment Analysis</h1>
+<h3>Overall sentiment: @Html.DisplayFor(model => model.Sentiment)</h3>
+<table id="sentimentTable" class="table">
+    <thead>
+        <tr>
+            <th>Text</th>
+            <th>Sentiment Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.wikiPages.Count(); i++)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.wikiPages[i])
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.pageSentiment[i])
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 
 @section Scripts{
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.min.css" />
     <script src="https://cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>
-    <script>
-    $(document).ready(function () {
+    <script>$(document).ready(function () {
             $('#indexTable').DataTable({
                 paging: true,
                 ordering: true,
                 searching: true
             });
         });</script>
+    <script>$(document).ready(function () {
+            $('#sentimentTable').DataTable({
+                paging: true,
+                ordering: true,
+                searching: true
+            });
+        });</script>
 }
-
-
-

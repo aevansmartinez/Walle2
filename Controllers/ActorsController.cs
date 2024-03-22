@@ -60,7 +60,8 @@ namespace testing2.Controllers
             DetailsVM detailsVM = new DetailsVM();
             detailsVM.Actor = actor;
             detailsVM.ActorMovie = _context.ActorMovie.Where(m => m.ActorId == actor.Id).Include(m => m.Actor).Include(m => m.Movie).ToList();
-
+            detailsVM.wikiPages = new List<string>();
+            detailsVM.pageSentiment = new List<double>();
 
             //WIKIPEDIA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             List<string> textToExamine = await SearchWikipediaAsync(actor.Name);
@@ -74,6 +75,14 @@ namespace testing2.Controllers
                 if (results.Compound != 0)
                 {
                     resultsTotal += results.Compound;
+                    if (validResults <= 100)
+                    {
+                        string shortenedText = textValue.Substring(0, Math.Min(500, textValue.Length));
+                        if (textValue.Length > 500)
+                            shortenedText += "...";
+                        detailsVM.wikiPages.Add(shortenedText);
+                        detailsVM.pageSentiment.Add(results.Compound);
+                    }
                     validResults++;
                 }
             }
@@ -187,6 +196,9 @@ namespace testing2.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(actor.Photo));
+            Actor existingActor = _context.Actor.AsNoTracking().FirstOrDefault(m => m.Id == id);
+
             if (ModelState.IsValid)
             {
                 try
@@ -196,6 +208,14 @@ namespace testing2.Controllers
                         var memoryStream = new MemoryStream();
                         await Photo.CopyToAsync(memoryStream);
                         actor.Photo = memoryStream.ToArray();
+                    }
+                    else if (existingActor != null)
+                    {
+                        actor.Photo = existingActor.Photo;
+                    }
+                    else
+                    {
+                        actor.Photo = new byte[0];
                     }
                     _context.Update(actor);
                     await _context.SaveChangesAsync();
@@ -215,6 +235,7 @@ namespace testing2.Controllers
             }
             return View(actor);
         }
+
 
         // GET: Actors/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -248,14 +269,14 @@ namespace testing2.Controllers
             {
                 _context.Actor.Remove(actor);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ActorExists(int id)
         {
-          return (_context.Actor?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Actor?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

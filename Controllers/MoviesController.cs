@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -62,6 +63,8 @@ namespace testing2.Controllers
             MovieVM movieDetailsVM = new MovieVM();
             movieDetailsVM.Movie = movie;
             movieDetailsVM.ActorMovie = _context.ActorMovie.Where(m => m.MovieId == movie.Id).Include(m => m.Movie).Include(m => m.Actor).ToList();
+            movieDetailsVM.wikiPages = new List<string>();
+            movieDetailsVM.pageSentiment = new List<double>();
 
             //WIKIPEDIA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             List<string> textToExamine = await SearchWikipediaAsync(movie.Title);
@@ -69,15 +72,25 @@ namespace testing2.Controllers
             var analyzer = new SentimentIntensityAnalyzer();
             int validResults = 0;
             double resultsTotal = 0;
+
             foreach (string textValue in textToExamine)
             {
                 var results = analyzer.PolarityScores(textValue.Substring(0, textValue.Length < 2500 ? textValue.Length : 2500));
                 if (results.Compound != 0)
                 {
                     resultsTotal += results.Compound;
+                    if (validResults <= 100)
+                    {
+                        string shortenedText = textValue.Substring(0, Math.Min(500, textValue.Length));
+                        if (textValue.Length > 500)
+                            shortenedText += "...";
+                        movieDetailsVM.wikiPages.Add(shortenedText);
+                        movieDetailsVM.pageSentiment.Add(results.Compound);
+                    }
                     validResults++;
                 }
             }
+
             double avgResult = Math.Round(resultsTotal / validResults, 2);
             movieDetailsVM.Sentiment = avgResult.ToString();
 
@@ -188,6 +201,9 @@ namespace testing2.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(movie.Poster));
+            Movie existingMovie = _context.Movie.AsNoTracking().FirstOrDefault(m => m.Id == id);
+
             if (ModelState.IsValid)
             {
                 try
@@ -197,6 +213,14 @@ namespace testing2.Controllers
                         var memoryStream = new MemoryStream();
                         await Poster.CopyToAsync(memoryStream);
                         movie.Poster = memoryStream.ToArray();
+                    }
+                    else if (existingMovie != null)
+                    {
+                        movie.Poster = existingMovie.Poster;
+                    }
+                    else
+                    {
+                        movie.Poster = new byte[0];
                     }
                     _context.Update(movie);
                     await _context.SaveChangesAsync();
@@ -249,7 +273,7 @@ namespace testing2.Controllers
             {
                 _context.Movie.Remove(movie);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

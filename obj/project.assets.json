@@ -11177,11 +11177,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/annyae/Documents/Walle/testing2/testing2/testing2.csproj",
+      "projectUniqueName": "/Users/annyae/Desktop/gitupdate/Walle2/testing2.csproj",
       "projectName": "testing2",
-      "projectPath": "/Users/annyae/Documents/Walle/testing2/testing2/testing2.csproj",
+      "projectPath": "/Users/annyae/Desktop/gitupdate/Walle2/testing2.csproj",
       "packagesPath": "/Users/annyae/.nuget/packages/",
-      "outputPath": "/Users/annyae/Documents/Walle/testing2/testing2/obj/",
+      "outputPath": "/Users/annyae/Desktop/gitupdate/Walle2/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/annyae/.nuget/NuGet/NuGet.Config"
